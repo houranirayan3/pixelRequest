@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tag Request Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+    .form-container {
+      background: white;
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .full-width {
+      grid-column: span 2;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, select, textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      grid-column: span 2;
+      padding: 12px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Tag Request Form</h2>
+    <form method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="exType">Type:</label>
+          <select id="exType" name="exType" onchange="onTypeChange()">
+            <option value="">Select type</option>
+            <option value="exPSA">exPSA</option>
+            <option value="exFCA">exFCA</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="brand">Brand:</label>
+          <select id="brand" name="brand">
+            <option value="">Select brand</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="car_model">Car Model:</label>
+          <select id="car_model" name="car_model" onchange="handleModelSelect()">
+            <option value="all">All Models</option>
+            <option value="custom">Select a model</option>
+          </select>
+          <input type="text" id="manual_model_input" name="manual_model_input"
+                 placeholder="Type model here" style="display:none; margin-top:10px;">
+        </div>
+
+        <div class="form-group">
+          <label for="publisher">Publisher:</label>
+          <input type="text" id="publisher" name="publisher">
+        </div>
+
+        <div class="form-group">
+          <label for="url">URL:</label>
+          <input type="url" id="url" name="url" placeholder="https://example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="pixel_lifetime">Pixel Lifetime:</label>
+          <select id="pixel_lifetime" name="pixel_lifetime">
+            <option value="">Select</option>
+            <option value="Always On">Always On</option>
+            <option value="Campaign only">Campaign only</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="conversion_type">Conversion Type:</label>
+          <select id="conversion_type" name="conversion_type">
+            <option value="">Select</option>
+            {% for item in conversion_types %}
+              <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="tag_code">Tag Code:</label>
+          <textarea id="tag_code" name="tag_code" rows="3"></textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="third_party_tech">Third-Party Tech Name:</label>
+          <select id="third_party_tech" name="third_party_tech">
+            <option value="">Select</option>
+            {% for tech in third_party_tech_list %}
+              <option value="{{ tech }}">{{ tech }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="agency_name">Agency Name:</label>
+          <select id="agency_name" name="agency_name">
+            <option value="">Select</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date:</label>
+          <input type="date" id="date" name="date">
+        </div>
+
+        <div class="form-group full-width">
+          <label for="advertiser_name">Advertiser Name:</label>
+          <input type="text" id="advertiser_name" name="advertiser_name">
+        </div>
+
+        <div class="form-group full-width">
+          <label for="instruction">Instruction:</label>
+          <textarea id="instruction" name="instruction" rows="3"></textarea>
+        </div>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    const exPSA_brands = {{ exPSA_brands | tojson }};
+    const exFCA_brands = {{ exFCA_brands | tojson }};
+    const exPSA_agencies = {{ exPSA_agencies | tojson }};
+    const exFCA_agencies = {{ exFCA_agencies | tojson }};
+
+    function updateBrandOptions() {
+      const type = document.getElementById("exType").value;
+      const brandSelect = document.getElementById("brand");
+      brandSelect.innerHTML = '<option value="">Select brand</option>';
+      const brands = type === "exPSA" ? exPSA_brands : exFCA_brands;
+      brands.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.text = b;
+        brandSelect.appendChild(opt);
+      });
+    }
+
+    function updateAgencyOptions() {
+      const type = document.getElementById("exType").value;
+      const agencySelect = document.getElementById("agency_name");
+      agencySelect.innerHTML = '<option value="">Select</option>';
+      const agencies = type === "exPSA" ? exPSA_agencies : exFCA_agencies;
+      agencies.forEach(a => {
+        const opt = document.createElement("option");
+        opt.value = a;
+        opt.text = a;
+        agencySelect.appendChild(opt);
+      });
+    }
+
+    function onTypeChange() {
+      updateBrandOptions();
+      updateAgencyOptions();
+    }
+
+    function handleModelSelect() {
+      const model = document.getElementById("car_model").value;
+      const input = document.getElementById("manual_model_input");
+      input.style.display = model === "custom" ? "block" : "none";
+    }
+
+    window.onload = function () {
+      document.getElementById("date").valueAsDate = new Date();
+      onTypeChange();
+    };
+  </script>
+</body>
+</html>
